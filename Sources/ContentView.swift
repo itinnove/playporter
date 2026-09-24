@@ -11,9 +11,6 @@ struct ContentView: View {
             if let error = model.dropError {
                 banner(error, systemImage: "exclamationmark.triangle.fill", color: .orange)
             }
-            if !model.packages.isEmpty {
-                filterBar
-            }
             if model.items.isEmpty {
                 emptyState
             } else {
@@ -49,9 +46,23 @@ struct ContentView: View {
                 Image(systemName: "plus")
             }
             .help("Ajouter des fichiers .aab")
+            if !model.packages.isEmpty {
+                filterPicker
+            }
             Spacer()
             authControl
         }
+    }
+
+    private var filterPicker: some View {
+        Picker("App", selection: $model.filterPackage) {
+            Text("Toutes les apps").tag(String?.none)
+            ForEach(model.packages, id: \.self) { pkg in
+                Text(pkg).tag(String?.some(pkg))
+            }
+        }
+        .labelsHidden()
+        .fixedSize()
     }
 
     @ViewBuilder
@@ -75,22 +86,6 @@ struct ContentView: View {
             } label: {
                 Label("Se connecter avec Google", systemImage: "person.crop.circle.badge.plus")
             }
-        }
-    }
-
-    // MARK: - Filter
-
-    private var filterBar: some View {
-        HStack {
-            Picker("App", selection: $model.filterPackage) {
-                Text("Toutes les apps").tag(String?.none)
-                ForEach(model.packages, id: \.self) { pkg in
-                    Text(pkg).tag(String?.some(pkg))
-                }
-            }
-            .labelsHidden()
-            .fixedSize()
-            Spacer()
         }
     }
 

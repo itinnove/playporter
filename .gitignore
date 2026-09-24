@@ -20,3 +20,7 @@ CONVERSATION.md
 
 # Secrets OAuth (ne jamais versionner — copier depuis Secrets.swift.example)
 Sources/Secrets.swift
+
+# Packaging
+build-release/
+Playporter-*.zip
