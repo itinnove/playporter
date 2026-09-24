@@ -1,0 +1,19 @@
+# XcodeGen output (regenerate with `xcodegen generate`)
+Playporter.xcodeproj/
+
+# Build
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# macOS
+.DS_Store
+
+# Secrets / local config
+Secrets.xcconfig
+*.p8
+*.json.key
+
+# Notes de travail locales (non versionnées)
+CONVERSATION.md
