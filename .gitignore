@@ -24,3 +24,6 @@ Sources/Secrets.swift
 # Packaging
 build-release/
 Playporter-*.zip
+
+# Master d'icône (régénérable via scripts/make_icon.swift)
+icon_master.png

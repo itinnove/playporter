@@ -17,9 +17,11 @@ targets:
     deploymentTarget: "13.0"
     sources:
       - path: Sources
+      - path: Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.itinnove.playporter
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Playporter
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
