@@ -8,7 +8,7 @@ struct PlayporterApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(model)
-                .frame(minWidth: 420, minHeight: 360)
+                .frame(minWidth: 460, minHeight: 520)
         }
         .windowResizability(.contentMinSize)
     }

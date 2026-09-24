@@ -17,3 +17,6 @@ Secrets.xcconfig
 
 # Notes de travail locales (non versionnées)
 CONVERSATION.md
+
+# Secrets OAuth (ne jamais versionner — copier depuis Secrets.swift.example)
+Sources/Secrets.swift
