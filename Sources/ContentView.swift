@@ -6,11 +6,13 @@ struct ContentView: View {
     @State private var isTargeted = false
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
             header
-            dropZone
             if let error = model.dropError {
                 banner(error, systemImage: "exclamationmark.triangle.fill", color: .orange)
+            }
+            if !model.packages.isEmpty {
+                filterBar
             }
             if model.items.isEmpty {
                 emptyState
@@ -35,12 +37,18 @@ struct ContentView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 10) {
             Image(systemName: "shippingbox.fill")
                 .font(.title2)
                 .foregroundStyle(.tint)
             Text("Playporter")
                 .font(.title2.weight(.semibold))
+            Button {
+                model.openFilePicker()
+            } label: {
+                Image(systemName: "plus")
+            }
+            .help("Ajouter des fichiers .aab")
             Spacer()
             authControl
         }
@@ -52,8 +60,10 @@ struct ContentView: View {
             Menu {
                 Button("Se déconnecter", role: .destructive) { model.signOut() }
             } label: {
-                Label("Connecté", systemImage: "person.crop.circle.fill.badge.checkmark")
+                Label(model.userEmail ?? "Connecté", systemImage: "person.crop.circle.fill.badge.checkmark")
                     .foregroundStyle(.green)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
             .menuStyle(.borderlessButton)
             .fixedSize()
@@ -68,52 +78,40 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Drop zone
+    // MARK: - Filter
 
-    private var dropZone: some View {
-        RoundedRectangle(cornerRadius: 14)
-            .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8]))
-            .foregroundStyle(isTargeted ? Color.accentColor : Color.secondary.opacity(0.4))
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(isTargeted ? Color.accentColor.opacity(0.08) : Color.secondary.opacity(0.04))
-            )
-            .frame(height: 110)
-            .overlay(
-                VStack(spacing: 6) {
-                    Image(systemName: "arrow.down.doc.fill")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-                    Text("Dépose un ou plusieurs .aab ici")
-                        .font(.headline)
-                    Text("Ils seront envoyés en Test interne sur l'app correspondante")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+    private var filterBar: some View {
+        HStack {
+            Picker("App", selection: $model.filterPackage) {
+                Text("Toutes les apps").tag(String?.none)
+                ForEach(model.packages, id: \.self) { pkg in
+                    Text(pkg).tag(String?.some(pkg))
                 }
-            )
-    }
-
-    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
-        var handled = false
-        for provider in providers {
-            handled = true
-            _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                guard let url else { return }
-                Task { @MainActor in model.handleDroppedFile(url) }
             }
+            .labelsHidden()
+            .fixedSize()
+            Spacer()
         }
-        return handled
     }
 
     // MARK: - Empty state
 
     private var emptyState: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 12) {
             Spacer()
-            Text("Aucun build pour l'instant")
+            Image(systemName: "arrow.down.doc")
+                .font(.system(size: 40))
                 .foregroundStyle(.secondary)
+            Text("Glisse des .aab n'importe où dans la fenêtre")
+                .foregroundStyle(.secondary)
+            Button {
+                model.openFilePicker()
+            } label: {
+                Label("Choisir des fichiers…", systemImage: "plus")
+            }
             Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - List
@@ -121,7 +119,7 @@ struct ContentView: View {
     private var list: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(model.items) { item in
+                ForEach(model.filteredItems) { item in
                     row(item)
                     Divider()
                 }
@@ -137,7 +135,7 @@ struct ContentView: View {
                 .overlay(Image(systemName: "shippingbox").foregroundStyle(.secondary))
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.packageName)
+                Text(item.displayName)
                     .font(.callout.weight(.medium))
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -204,6 +202,18 @@ struct ContentView: View {
     }
 
     // MARK: - Bits
+
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        var handled = false
+        for provider in providers {
+            handled = true
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                guard let url else { return }
+                Task { @MainActor in model.handleDroppedFile(url) }
+            }
+        }
+        return handled
+    }
 
     private func banner(_ text: String, systemImage: String, color: Color) -> some View {
         HStack(spacing: 10) {

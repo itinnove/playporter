@@ -12,6 +12,11 @@ enum PlayPublisherError: LocalizedError {
     }
 }
 
+struct UploadResult {
+    let versionCode: Int
+    let appName: String?
+}
+
 /// Drives the Google Play Developer API "edits" flow to push an AAB to the
 /// internal testing track.
 struct PlayPublisher {
@@ -20,15 +25,18 @@ struct PlayPublisher {
     private let apiBase = "https://androidpublisher.googleapis.com/androidpublisher/v3"
     private let uploadBase = "https://androidpublisher.googleapis.com/upload/androidpublisher/v3"
 
-    /// Full pipeline: insert edit → upload bundle → assign to `internal` → commit.
-    /// Returns the versionCode Google recorded for the uploaded bundle.
+    /// Full pipeline: insert edit → (read app name) → upload bundle → assign to
+    /// `internal` → commit. Returns the recorded versionCode and, if available,
+    /// the app's store title.
     func publishInternal(
         aab: URL,
         packageName: String,
         progress: @escaping (String) -> Void
-    ) async throws -> Int {
+    ) async throws -> UploadResult {
         progress("Création d'une révision…")
         let editId = try await insertEdit(packageName: packageName)
+
+        let appName = try? await fetchAppName(packageName: packageName, editId: editId)
 
         progress("Upload de l'AAB…")
         let versionCode = try await uploadBundle(aab: aab, packageName: packageName, editId: editId)
@@ -39,7 +47,18 @@ struct PlayPublisher {
         progress("Validation…")
         try await commit(packageName: packageName, editId: editId)
 
-        return versionCode
+        return UploadResult(versionCode: versionCode, appName: appName)
+    }
+
+    /// Best-effort: reads the app title from its store listing.
+    private func fetchAppName(packageName: String, editId: String) async throws -> String? {
+        let url = URL(string: "\(apiBase)/applications/\(enc(packageName))/edits/\(enc(editId))/listings")!
+        let data = try await send(url, method: "GET")
+        guard let json = jsonObject(data),
+              let listings = json["listings"] as? [[String: Any]] else { return nil }
+        // Prefer the default language, else the first non-empty title.
+        let titles = listings.compactMap { $0["title"] as? String }.filter { !$0.isEmpty }
+        return titles.first
     }
 
     // MARK: - Steps

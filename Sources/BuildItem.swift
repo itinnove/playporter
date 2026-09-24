@@ -5,6 +5,7 @@ import Foundation
 struct BuildItem: Identifiable, Codable, Equatable {
     var id = UUID()
     var packageName: String
+    var appName: String?
     var versionCode: Int?
     var versionName: String?
     var filePath: String
@@ -33,6 +34,9 @@ struct BuildItem: Identifiable, Codable, Equatable {
 
     var fileURL: URL { URL(fileURLWithPath: filePath) }
     var fileExists: Bool { FileManager.default.fileExists(atPath: filePath) }
+
+    /// App title if known (from the Play listing), else the package name.
+    var displayName: String { appName ?? packageName }
 
     var versionLabel: String {
         switch (versionName, versionCode) {

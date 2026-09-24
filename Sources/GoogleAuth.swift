@@ -153,10 +153,15 @@ final class LoopbackAuthReceiver {
 final class GoogleAuth {
     static let shared = GoogleAuth()
     private let refreshAccount = "google.refreshToken"
+    private let emailAccount = "google.email"
 
     var isAuthorized: Bool { KeychainStore.getString(account: refreshAccount) != nil }
+    var userEmail: String? { KeychainStore.getString(account: emailAccount) }
 
-    func signOut() { KeychainStore.delete(account: refreshAccount) }
+    func signOut() {
+        KeychainStore.delete(account: refreshAccount)
+        KeychainStore.delete(account: emailAccount)
+    }
 
     /// Full interactive sign-in; stores the refresh token in the keychain.
     func signIn() async throws {
@@ -196,8 +201,25 @@ final class GoogleAuth {
             throw GoogleAuthError.oauthError("code manquant")
         }
 
-        let refresh = try await exchangeCode(code, verifier: verifier, redirectURI: redirectURI)
+        let tokens = try await exchangeCode(code, verifier: verifier, redirectURI: redirectURI)
+        guard let refresh = tokens["refresh_token"] as? String else {
+            throw GoogleAuthError.badTokenResponse("refresh_token manquant")
+        }
         KeychainStore.setString(refresh, account: refreshAccount)
+
+        if let access = tokens["access_token"] as? String,
+           let email = try? await fetchEmail(accessToken: access) {
+            KeychainStore.setString(email, account: emailAccount)
+        }
+    }
+
+    private func fetchEmail(accessToken: String) async throws -> String? {
+        guard let url = URL(string: "https://openidconnect.googleapis.com/v1/userinfo") else { return nil }
+        var req = URLRequest(url: url)
+        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        let (data, _) = try await URLSession.shared.data(for: req)
+        let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        return json?["email"] as? String
     }
 
     /// A fresh access token, obtained from the stored refresh token.
@@ -217,8 +239,8 @@ final class GoogleAuth {
         return token
     }
 
-    private func exchangeCode(_ code: String, verifier: String, redirectURI: String) async throws -> String {
-        let json = try await postForm(Secrets.tokenURI, [
+    private func exchangeCode(_ code: String, verifier: String, redirectURI: String) async throws -> [String: Any] {
+        try await postForm(Secrets.tokenURI, [
             "code": code,
             "client_id": Secrets.clientID,
             "client_secret": Secrets.clientSecret,
@@ -226,10 +248,6 @@ final class GoogleAuth {
             "grant_type": "authorization_code",
             "redirect_uri": redirectURI,
         ])
-        guard let refresh = json["refresh_token"] as? String else {
-            throw GoogleAuthError.badTokenResponse("refresh_token manquant")
-        }
-        return refresh
     }
 
     private func postForm(_ urlString: String, _ params: [String: String]) async throws -> [String: Any] {

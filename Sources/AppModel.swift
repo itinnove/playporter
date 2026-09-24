@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 @MainActor
 final class AppModel: ObservableObject {
@@ -14,6 +15,20 @@ final class AppModel: ObservableObject {
 
     @Published var isSignedIn: Bool = GoogleAuth.shared.isAuthorized
     @Published var isAuthenticating = false
+    /// Filter the list to a single package (nil = all apps).
+    @Published var filterPackage: String?
+
+    var userEmail: String? { GoogleAuth.shared.userEmail }
+
+    /// Distinct packages present in the list, for the filter menu.
+    var packages: [String] {
+        Array(Set(items.map { $0.packageName })).sorted()
+    }
+
+    var filteredItems: [BuildItem] {
+        guard let filterPackage else { return items }
+        return items.filter { $0.packageName == filterPackage }
+    }
 
     init() {
         // Restore the list; any build left "uploading" from a previous run
@@ -48,6 +63,20 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func openFilePicker() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        if let aabType = UTType(filenameExtension: "aab") {
+            panel.allowedContentTypes = [aabType]
+        }
+        panel.prompt = "Ajouter"
+        if panel.runModal() == .OK {
+            for url in panel.urls { handleDroppedFile(url) }
+        }
+    }
+
     // MARK: - Upload
 
     func send(_ item: BuildItem) {
@@ -61,7 +90,7 @@ final class AppModel: ObservableObject {
             do {
                 let token = try await GoogleAuth.shared.accessToken()
                 let publisher = PlayPublisher(accessToken: token)
-                let versionCode = try await publisher.publishInternal(
+                let result = try await publisher.publishInternal(
                     aab: target.fileURL,
                     packageName: target.packageName
                 ) { status in
@@ -70,7 +99,8 @@ final class AppModel: ObservableObject {
                 self.update(target.id) {
                     $0.status = .sent
                     $0.date = Date()
-                    $0.versionCode = versionCode
+                    $0.versionCode = result.versionCode
+                    if let name = result.appName { $0.appName = name }
                     $0.detail = nil
                 }
             } catch {
