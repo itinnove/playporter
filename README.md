@@ -17,7 +17,7 @@ connexion Google, upload via l'API officielle.
 
 ## Installation
 
-Téléchargez le `.dmg` depuis les [releases](https://github.com/blaisebarre/playporter/releases)
+Téléchargez le `.dmg` depuis les [releases](https://github.com/itinnove/playporter/releases)
 et glissez Playporter dans Applications. L'app est signée Developer ID et notarisée Apple.
 
 ## Compilation depuis les sources
