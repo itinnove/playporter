@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playporter — Envoyez vos builds Android sur Google Play</title>
+<meta name="description" content="Playporter : glissez-déposez un .aab, il part en Test interne sur Google Play. Le « Transporter » de Google Play pour macOS.">
+<style>
+  :root{
+    --blue:#4285F4; --red:#EA4335; --yellow:#FBBC05; --green:#34A853;
+    --ink:#1f2328; --muted:#5f6368; --line:#e8eaed; --bg:#ffffff; --soft:#f6f8fa;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.55}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header.hero{text-align:center;padding:72px 0 40px}
+  .appicon{width:132px;height:132px;border-radius:28px;box-shadow:0 12px 34px rgba(0,0,0,.12);}
+  h1{font-size:44px;margin:22px 0 6px;letter-spacing:-.02em}
+  .tag{font-size:20px;color:var(--muted);max-width:620px;margin:0 auto 28px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-block;padding:14px 26px;border-radius:12px;font-weight:600;font-size:16px}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary:hover{background:#3574e0;text-decoration:none}
+  .btn.ghost{border:1px solid var(--line);color:var(--ink)}
+  .btn.ghost:hover{background:var(--soft);text-decoration:none}
+  .meta{margin-top:16px;color:var(--muted);font-size:14px}
+  .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin:0 8px;vertical-align:middle;background:var(--line)}
+
+  section{padding:52px 0;border-top:1px solid var(--line)}
+  h2{font-size:28px;letter-spacing:-.01em;text-align:center;margin:0 0 36px}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .step{background:var(--soft);border-radius:16px;padding:24px}
+  .step .n{width:34px;height:34px;border-radius:50%;color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:12px}
+  .step:nth-child(1) .n{background:var(--blue)}
+  .step:nth-child(2) .n{background:var(--yellow);color:#3a2f00}
+  .step:nth-child(3) .n{background:var(--green)}
+  .step h3{margin:0 0 6px;font-size:18px}
+  .step p{margin:0;color:var(--muted);font-size:15px}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .feat{border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .feat h3{margin:0 0 6px;font-size:17px}
+  .feat p{margin:0;color:var(--muted);font-size:15px}
+
+  footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+  .bar{height:6px;background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%)}
+
+  @media(max-width:680px){
+    h1{font-size:34px}.tag{font-size:18px}
+    .steps{grid-template-columns:1fr}.grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="bar"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="appicon" src="icon.png" alt="Playporter" width="132" height="132">
+    <h1>Playporter</h1>
+    <p class="tag">Glissez-déposez un <code>.aab</code>, il part en <strong>Test interne</strong> sur Google Play. Le « Transporter » de Google Play, pour macOS.</p>
+    <div class="cta">
+      <a class="btn primary" href="Playporter-0.1.0.dmg">Télécharger le .dmg</a>
+      <a class="btn ghost" href="Playporter-0.1.0.zip">ou le .zip</a>
+    </div>
+    <p class="meta">macOS 13+ <span class="dot"></span> Apple Silicon &amp; Intel <span class="dot"></span> Signé &amp; notarisé Apple</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Comment ça marche</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Connecte-toi</h3><p>Un clic « Se connecter avec Google » — l'accès reste dans ton Trousseau, jamais ailleurs.</p></div>
+      <div class="step"><div class="n">2</div><h3>Dépose ton build</h3><p>Glisse un ou plusieurs <code>.aab</code> n'importe où dans la fenêtre.</p></div>
+      <div class="step"><div class="n">3</div><h3>En ligne</h3><p>Playporter détecte l'app et publie sur le canal Test interne. C'est tout.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Ce qu'il fait</h2>
+    <div class="grid">
+      <div class="feat"><h3>Détection automatique</h3><p>Le package et la version sont lus directement dans l'AAB — aucune config par app.</p></div>
+      <div class="feat"><h3>Connexion Google sécurisée</h3><p>OAuth 2.0 (PKCE), jeton stocké dans le Trousseau macOS.</p></div>
+      <div class="feat"><h3>File d'attente &amp; historique</h3><p>Empilez plusieurs builds, suivez les envois, filtrez par application.</p></div>
+      <div class="feat"><h3>Zéro dépendance</h3><p>Pas de Java, pas de fastlane. Une app native autonome.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Un outil <strong>IT INNOVE</strong> · <a href="https://github.com/blaisebarre/playporter">Code source sur GitHub</a></p>
+  </div>
+</footer>
+</body>
+</html>
