@@ -15,6 +15,8 @@ final class AppModel: ObservableObject {
 
     @Published var isSignedIn: Bool = GoogleAuth.shared.isAuthorized
     @Published var isAuthenticating = false
+    @Published var pendingUpdate: Updater.Manifest?
+    @Published var isUpdating = false
     /// Filter the list to a single package (nil = all apps).
     @Published var filterPackage: String?
 
@@ -40,7 +42,40 @@ final class AppModel: ObservableObject {
             recovered.detail = "Envoi interrompu"
             return recovered
         }
+        checkForUpdates(silent: true)
     }
+
+    // MARK: - Auto-update
+
+    func checkForUpdates(silent: Bool) {
+        Task {
+            do {
+                let manifest = try await Updater.fetchManifest()
+                if Updater.isNewer(manifest.version) {
+                    self.pendingUpdate = manifest
+                } else if !silent {
+                    self.dropError = "Playporter est à jour (v\(Updater.currentVersion()))."
+                }
+            } catch {
+                if !silent { self.dropError = "Vérification des mises à jour impossible." }
+            }
+        }
+    }
+
+    func installUpdate() {
+        guard let manifest = pendingUpdate, !isUpdating else { return }
+        isUpdating = true
+        Task {
+            do {
+                try await Updater.performUpdate(manifest)
+            } catch {
+                self.isUpdating = false
+                self.dropError = "Mise à jour échouée : \(error.localizedDescription)"
+            }
+        }
+    }
+
+    func dismissUpdate() { pendingUpdate = nil }
 
     // MARK: - Drop
 

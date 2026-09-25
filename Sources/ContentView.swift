@@ -8,6 +8,9 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 14) {
             header
+            if let update = model.pendingUpdate {
+                updateBanner(update)
+            }
             if let error = model.dropError {
                 banner(error, systemImage: "exclamationmark.triangle.fill", color: .orange)
             }
@@ -208,6 +211,29 @@ struct ContentView: View {
             }
         }
         return handled
+    }
+
+    private func updateBanner(_ m: Updater.Manifest) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "arrow.down.circle.fill").foregroundStyle(.blue)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Mise à jour disponible — v\(m.version)").font(.callout.weight(.medium))
+                if let notes = m.notes, !notes.isEmpty {
+                    Text(notes).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                }
+            }
+            Spacer(minLength: 8)
+            if model.isUpdating {
+                ProgressView().controlSize(.small)
+            } else {
+                Button("Installer") { model.installUpdate() }
+                    .buttonStyle(.borderedProminent)
+                Button { model.dismissUpdate() } label: { Image(systemName: "xmark") }
+                    .buttonStyle(.borderless)
+            }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.blue.opacity(0.10)))
     }
 
     private func banner(_ text: String, systemImage: String, color: Color) -> some View {

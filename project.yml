@@ -7,8 +7,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "2"
     ENABLE_HARDENED_RUNTIME: YES
 targets:
   Playporter:
@@ -26,4 +26,4 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Playporter
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 IT INNOVE"
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "0.2.0"

@@ -11,5 +11,12 @@ struct PlayporterApp: App {
                 .frame(minWidth: 460, minHeight: 520)
         }
         .windowResizability(.contentMinSize)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Rechercher les mises à jour…") {
+                    model.checkForUpdates(silent: false)
+                }
+            }
+        }
     }
 }
