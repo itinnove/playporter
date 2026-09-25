@@ -18,9 +18,10 @@ APP="$BUILD_DIR/Build/Products/Release/Playporter.app"
 echo "▶︎ Génération du projet Xcode…"
 xcodegen generate >/dev/null
 
-echo "▶︎ Build Release…"
+echo "▶︎ Build Release (universel arm64 + x86_64)…"
 xcodebuild -project Playporter.xcodeproj -scheme "$SCHEME" -configuration Release \
-  -derivedDataPath "$BUILD_DIR" CODE_SIGNING_ALLOWED=NO build >/dev/null
+  -derivedDataPath "$BUILD_DIR" CODE_SIGNING_ALLOWED=NO \
+  ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO build >/dev/null
 
 echo "▶︎ Signature Developer ID + hardened runtime…"
 codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP"
