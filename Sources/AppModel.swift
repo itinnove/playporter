@@ -19,6 +19,8 @@ final class AppModel: ObservableObject {
     @Published var isUpdating = false
     /// Filter the list to a single package (nil = all apps).
     @Published var filterPackage: String?
+    /// Destination track for uploads.
+    @Published var selectedTrack: PlayTrack = .internalTest
 
     var userEmail: String? { GoogleAuth.shared.userEmail }
 
@@ -118,6 +120,7 @@ final class AppModel: ObservableObject {
         guard isSignedIn else { return }
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
         items[index].status = .uploading
+        items[index].track = selectedTrack.rawValue
         progressByID[item.id] = "Préparation…"
         let target = items[index]
 
@@ -125,9 +128,10 @@ final class AppModel: ObservableObject {
             do {
                 let token = try await GoogleAuth.shared.accessToken()
                 let publisher = PlayPublisher(accessToken: token)
-                let result = try await publisher.publishInternal(
+                let result = try await publisher.publish(
                     aab: target.fileURL,
-                    packageName: target.packageName
+                    packageName: target.packageName,
+                    track: target.track
                 ) { status in
                     Task { @MainActor in self.progressByID[target.id] = status }
                 }

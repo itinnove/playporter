@@ -14,6 +14,7 @@ struct ContentView: View {
             if let error = model.dropError {
                 banner(error, systemImage: "exclamationmark.triangle.fill", color: .orange)
             }
+            trackBar
             if model.items.isEmpty {
                 emptyState
             } else {
@@ -92,6 +93,18 @@ struct ContentView: View {
         }
     }
 
+    private var trackBar: some View {
+        HStack(spacing: 8) {
+            Text("Envoyer vers").font(.caption).foregroundStyle(.secondary)
+            Picker("Canal", selection: $model.selectedTrack) {
+                ForEach(PlayTrack.allCases) { t in Text(t.label).tag(t) }
+            }
+            .labelsHidden()
+            .fixedSize()
+            Spacer()
+        }
+    }
+
     // MARK: - Empty state
 
     private var emptyState: some View {
@@ -166,7 +179,7 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
         case .sent:
-            Label("Envoyé le \(formatted(item.date)) · Test interne", systemImage: "checkmark.circle.fill")
+            Label("Envoyé le \(formatted(item.date)) · \(PlayTrack.label(for: item.track))", systemImage: "checkmark.circle.fill")
                 .font(.caption2)
                 .foregroundStyle(.green)
         case .failed:

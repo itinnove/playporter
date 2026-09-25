@@ -31,3 +31,8 @@ icon_master.png
 Playporter-*.dmg
 
 latest.json
+
+# Windows (Tauri)
+windows/src-tauri/target/
+windows/node_modules/
+windows/dist/

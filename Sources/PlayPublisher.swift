@@ -26,11 +26,12 @@ struct PlayPublisher {
     private let uploadBase = "https://androidpublisher.googleapis.com/upload/androidpublisher/v3"
 
     /// Full pipeline: insert edit → (read app name) → upload bundle → assign to
-    /// `internal` → commit. Returns the recorded versionCode and, if available,
-    /// the app's store title.
-    func publishInternal(
+    /// the chosen track → commit. Returns the recorded versionCode and, if
+    /// available, the app's store title.
+    func publish(
         aab: URL,
         packageName: String,
+        track: String,
         progress: @escaping (String) -> Void
     ) async throws -> UploadResult {
         progress("Création d'une révision…")
@@ -41,8 +42,8 @@ struct PlayPublisher {
         progress("Upload de l'AAB…")
         let versionCode = try await uploadBundle(aab: aab, packageName: packageName, editId: editId)
 
-        progress("Assignation au canal Test interne…")
-        try await assignToInternal(packageName: packageName, editId: editId, versionCode: versionCode)
+        progress("Assignation au canal \(PlayTrack.label(for: track))…")
+        try await assignTrack(packageName: packageName, editId: editId, versionCode: versionCode, track: track)
 
         progress("Validation…")
         try await commit(packageName: packageName, editId: editId)
@@ -87,10 +88,10 @@ struct PlayPublisher {
         return vc
     }
 
-    private func assignToInternal(packageName: String, editId: String, versionCode: Int) async throws {
-        let url = URL(string: "\(apiBase)/applications/\(enc(packageName))/edits/\(enc(editId))/tracks/internal")!
+    private func assignTrack(packageName: String, editId: String, versionCode: Int, track: String) async throws {
+        let url = URL(string: "\(apiBase)/applications/\(enc(packageName))/edits/\(enc(editId))/tracks/\(enc(track))")!
         let body: [String: Any] = [
-            "track": "internal",
+            "track": track,
             "releases": [
                 ["status": "completed", "versionCodes": [String(versionCode)]]
             ],
