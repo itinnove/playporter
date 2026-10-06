@@ -1,39 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/main.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
+    <title>Playporter</title>
   </head>
-
   <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+    <header>
+      <span class="logo">📦</span>
+      <h1>Playporter</h1>
+      <div class="spacer"></div>
+      <button id="signin" class="btn" hidden>Se connecter avec Google</button>
+      <button id="account" class="account" hidden></button>
+    </header>
 
-      <div class="row">
-        <a href="https://tauri.app" target="_blank">
-          <img src="/assets/tauri.svg" class="logo tauri" alt="Tauri logo" />
-        </a>
-        <a
-          href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
-          target="_blank"
-        >
-          <img
-            src="/assets/javascript.svg"
-            class="logo vanilla"
-            alt="JavaScript logo"
-          />
-        </a>
+    <main>
+      <div id="drop" class="drop">
+        <div class="drop-inner">
+          <div class="drop-title">Dépose un fichier .aab ici</div>
+          <div class="drop-sub">Il sera envoyé en Test interne sur l'app correspondante</div>
+        </div>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
-
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+      <div id="result" class="result" hidden></div>
     </main>
+
+    <script type="module" src="main.js"></script>
   </body>
 </html>

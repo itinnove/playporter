@@ -36,3 +36,5 @@ latest.json
 windows/src-tauri/target/
 windows/node_modules/
 windows/dist/
+
+windows/src-tauri/src/secrets.rs

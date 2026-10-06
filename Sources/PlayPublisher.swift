@@ -79,6 +79,7 @@ struct PlayPublisher {
         req.httpMethod = "POST"
         req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         req.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = 600  // gros AAB / connexion lente
 
         let (data, resp) = try await URLSession.shared.upload(for: req, fromFile: aab)
         try check(resp, data)
@@ -111,6 +112,7 @@ struct PlayPublisher {
         var req = URLRequest(url: url)
         req.httpMethod = method
         req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        req.timeoutInterval = 120
         if let jsonBody {
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
             req.httpBody = jsonBody
